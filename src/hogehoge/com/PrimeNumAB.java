@@ -3,7 +3,7 @@ package hogehoge.com;
 public class PrimeNumAB {
 	
 	//定数の定義
-	static final long minPrimeNum = 10000;    //最小の素数（５ケタ）
+	static final long minPrimeNum = 99999;    //最小の素数（５ケタ）
 	
 	//変数の定義
 	static int CompositeNumNLength;    //Nの桁数
@@ -12,15 +12,19 @@ public class PrimeNumAB {
 	
 	static long PrimeNumA;        //Aの確定値
 	static long PrimeNumB;        //Bの確定値
-	static long PrimeNumB2;        //Bの第２候補
+	static long PrimeNumB2;       //Bの第２候補
 	static long CompositeNumN;    //Nの確定値
-    
+	static long CompositeNumN2;   //Nの第２候補
+	
 	int PrimeNumAList[];        //Aの候補を格納する数列
 	int PrimeNumBList[];        //Bの候補を格納する数列
 	int CompositeNumNList[];    //Nの候補を格納する数列
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		//実行時間計測
+		long startTime = System.currentTimeMillis();
 		
 		//入力値の取得
 		CompositeNumNLength = Integer.parseInt(args[0]);
@@ -35,14 +39,8 @@ public class PrimeNumAB {
 		
 		//Aを探索する
 		PrimeNumA = (long)Math.pow(10, PrimeNumALength) -1;
+		PrimeNumA = previousPrimeNum(PrimeNumA, 0);
 		
-		//ループ１（A探索）開始
-		while(isPrimeNum(PrimeNumA,0)==0){
-			PrimeNumA--;
-			if(PrimeNumA < minPrimeNum){
-					break;
-			}
-		}
 		System.out.println("PrimeNumA  = " + PrimeNumA );
 
 		//Bを探索する		
@@ -53,45 +51,94 @@ public class PrimeNumAB {
 			PrimeNumB = (long)Math.pow(10, PrimeNumBLength) - 1;    //AとBの桁数が異なる 場合、B^10-1  をセット
 		}		
 		
-		//ループ２（B探索 初期試行）開始
-		while(isPrimeNum(PrimeNumB,0)==0){
-			PrimeNumB--;
-			if(PrimeNumB < minPrimeNum){
-					break;
-			}
-		}
-		System.out.println("PrimeNumB(1st candidate)  = " + PrimeNumB );
+		//次に小さい素数を探す
+		PrimeNumB = previousPrimeNum(PrimeNumB, 0);
+		
+		//第一候補とする
+		CompositeNumN = PrimeNumA * PrimeNumB;
+		System.out.println("PrimeNumB(1st candidate)  = " + PrimeNumB 
+		           		 + "   N = " + CompositeNumN);
 		
 		//ループ３（B探索 第２候補）開始
-		//B2をセット
-		PrimeNumB2 = (int)Math.pow(10, PrimeNumBLength) + 1;
+		//N桁となる最大のB２を求める
+		PrimeNumB2= ((long)Math.pow(10, CompositeNumNLength)-1) / PrimeNumA;
+		CompositeNumN2 = PrimeNumA * PrimeNumB2;
+		System.out.println("PrimeNumB(2nd candidate(max))  = " + PrimeNumB2 +
+				"   N = " + CompositeNumN2 );
 		
-		//A*B2がN桁以上でないかチェック
-		//System.out.println("PrimeNumB(2nd check)  = " + PrimeNumB2 + "   N = " + PrimeNumA * PrimeNumB2 );
-		while(PrimeNumA * PrimeNumB2 <= (long)Math.pow(10, CompositeNumNLength)){
-			if(isPrimeNum(PrimeNumB2,0)==0){
-				System.out.println("PrimeNumB(2nd check　no candidate)  = " + PrimeNumB2 + "   N = " + PrimeNumA * PrimeNumB2 );
-				PrimeNumB2++;                   //素数でないならB2に1加算、次へ
+		//候補N2が現在のN以下か
+		if( CompositeNumN2 <= CompositeNumN){
+		//以下の場合
+			//B、Nを確定（何もしない）
+			System.out.println("PrimeNumB(2nd candidate(max)) is no candidate");
+		//大きい場合
+		}else{
+			//１つ小さい素数を探す
+			PrimeNumB2 = previousPrimeNum(PrimeNumB2, 0);
+			CompositeNumN2 = PrimeNumA * PrimeNumB2;
 			
+			//候補が現在のN以上か
+			if(CompositeNumN2 >= CompositeNumN){
+				//B2をBとして確定
+				PrimeNumB = PrimeNumB2;
+				CompositeNumN = CompositeNumN2; 
+				System.out.println("PrimeNumB(2nd candidate is optimum solution)  = " + PrimeNumB +
+						"   N = " + CompositeNumN );
 			}else{
-				PrimeNumB = PrimeNumB2;     //素数ならBを更新
-				System.out.println("PrimeNumB(2nd candidate)  = " + PrimeNumB + "   N = " + PrimeNumA * PrimeNumB2 );
-				PrimeNumB2++;               //らB2に1加算、次を探す
+				System.out.println("PrimeNumB(2nd candidate is no optimum solution)  = " + PrimeNumB2 +
+						"   N = " + CompositeNumN2 );
 			}
 		}
 		
-		//最終のBを出力
-		System.out.println("PrimeNumB(last)  = " + PrimeNumB );
+		//結果を出力
+		System.out.println("----------" );
 		
 		//Nを出力
 		CompositeNumN = PrimeNumA * PrimeNumB;
 		System.out.println("CompositeNumN = " + CompositeNumN + " = " + PrimeNumA + " * " + PrimeNumB );
 		
+		//実行時間計測
+		long stopTime = System.currentTimeMillis();
+		
+		//実行時間を出力
+		System.out.println("Run Time = " + (stopTime - startTime) + " ms " );
+		
 	}
 	
+	//次の素数を探索するメソッド
+	private static long nextPrimeNum(long startNumber,int mode){
+		while(isPrimeNum(startNumber,0)==0){
+			System.out.println("PrimeNumB(2nd check no candidate)  = " + startNumber );
+			startNumber++;
+		}
+		
+		//素数を返却
+		return startNumber;
+	}
+
+	
+	//前の素数を探索するメソッド
+	private static long previousPrimeNum(long startNumber,int mode){
+		while(isPrimeNum(startNumber,0)==0){
+			startNumber--;
+			
+			//5桁以下になったら0を返す
+			if(startNumber <= minPrimeNum){
+					return 0;
+			}
+		}
+		
+		//素数を返却
+		return startNumber;
+	}
+	
+	//素数かどうかを判断するメソッド
 	private static int isPrimeNum(long PrimeNumber,int mode){
 		int i=2;
-		for ( i = 2; i < PrimeNumber; i++) {
+		//与えられた整数の平方根を探索の上限とする
+		//long rootPrimeNumber=PrimeNumber;
+		long rootPrimeNumber=(long)Math.sqrt(PrimeNumber);
+		for ( i = 2; i < rootPrimeNumber; i++) {
             if (PrimeNumber % i == 0) // 割り切れると素数ではない
                 return 0;          // それ以上の繰返しは不要
         }

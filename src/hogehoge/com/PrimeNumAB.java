@@ -3,7 +3,8 @@ package hogehoge.com;
 public class PrimeNumAB {
 	
 	//íËêîÇÃíËã`
-	static final long minPrimeNum = 99999;    //ç≈è¨ÇÃëfêîÅiÇTÉPÉ^Åj
+	static final long minPrimeNum = 10000;    //ç≈è¨ÇÃëfêîÅiÇTÉPÉ^Åj
+	static final long minPrimeNumLength = 5;    //ç≈è¨ÇÃëfêîÇÃåÖêîÅiÇTÉPÉ^Åj
 	
 	//ïœêîÇÃíËã`
 	static int CompositeNumNLength;    //NÇÃåÖêî
@@ -12,17 +13,13 @@ public class PrimeNumAB {
 	
 	static long PrimeNumA;        //AÇÃåÛï‚
 	static long PrimeNumB;        //BÇÃåÛï‚
-	static long PrimeNumB2;       //BÇÃëÊÇQåÛï‚
+	//static long PrimeNumB2;       //BÇÃëÊÇQåÛï‚
 	static long CompositeNumN;    //NÇÃåÛï‚
-	static long CompositeNumN2;   //NÇÃëÊÇQåÛï‚
+	//static long CompositeNumN2;   //NÇÃëÊÇQåÛï‚
 	static long PrimeNumALast;        //AÇÃämíËíl
 	static long PrimeNumBLast;        //BÇÃämíËíl
 	static long CompositeNumNLast;    //NÇÃämíËíl
 	
-	
-	int PrimeNumAList[];        //AÇÃåÛï‚Çäiî[Ç∑ÇÈêîóÒ
-	int PrimeNumBList[];        //BÇÃåÛï‚Çäiî[Ç∑ÇÈêîóÒ
-	int CompositeNumNList[];    //NÇÃåÛï‚Çäiî[Ç∑ÇÈêîóÒ
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -43,11 +40,15 @@ public class PrimeNumAB {
 		PrimeNumALength = (int)Math.ceil(CompositeNumNLength/2.0);
 		PrimeNumBLength = CompositeNumNLength/2;
 		
+		searchAB();
+		
+		/*
 		while ( PrimeNumBLength >= 5) {
 			searchAB();
 			PrimeNumALength++;
 			PrimeNumBLength--;
 		}
+		*/
 		
 		//åãâ ÇèoóÕ
 		System.out.println("----------" );
@@ -75,7 +76,7 @@ public class PrimeNumAB {
 		PrimeNumA = (long)Math.pow(10, PrimeNumALength);
 		
 		//A,BÇíTçıÇ∑ÇÈ
-		for(int i=0;i<=10;i++){
+		for(int i=0;i<=0;i++){
 			PrimeNumA--;
 			PrimeNumA = previousPrimeNum(PrimeNumA, 0);
 		
@@ -88,7 +89,7 @@ public class PrimeNumAB {
 			}else{
 				PrimeNumB = (long)Math.pow(10, PrimeNumBLength) - 1;    //AÇ∆BÇÃåÖêîÇ™àŸÇ»ÇÈ èÍçáÅAB^10-1  ÇÉZÉbÉg
 			}		
-					
+			/*		
 			//éüÇ…è¨Ç≥Ç¢ëfêîÇíTÇ∑
 			PrimeNumB = previousPrimeNum(PrimeNumB, 0);
 				
@@ -105,36 +106,38 @@ public class PrimeNumAB {
 						 CompositeNumNLast + " = " + PrimeNumALast + 
 						" * " + PrimeNumBLast );
 			}
+			
+			*/
 					
 			//ÉãÅ[ÉvÇRÅiBíTçı ëÊÇQåÛï‚ÅjäJén
 			//NåÖÇ∆Ç»ÇÈç≈ëÂÇÃBÇQÇãÅÇﬂÇÈ
-			PrimeNumB2= ((long)Math.pow(10, CompositeNumNLength)-1) / PrimeNumA;
-			CompositeNumN2 = PrimeNumA * PrimeNumB2;
-			System.out.println("PrimeNumB(2nd candidate(max))  = " + PrimeNumB2 +
-							"   N = " + CompositeNumN2 );
+			PrimeNumB= ((long)Math.pow(10, CompositeNumNLength)-1) / PrimeNumA;
+			CompositeNumN = PrimeNumA * PrimeNumB;
+			System.out.println("PrimeNumB(2nd candidate(max))  = " + PrimeNumB +
+							"   N = " + CompositeNumN );
 					
 			//åÛï‚N2Ç™åªç›ÇÃNà»â∫Ç©
-			if( CompositeNumN2 <= CompositeNumNLast){
+			if( CompositeNumN <= CompositeNumNLast){
 			//à»â∫ÇÃèÍçá
 				//BÅANÇämíËÅiâΩÇ‡ÇµÇ»Ç¢Åj
 				System.out.println("PrimeNumB(2nd candidate(max)) is no candidate");
 			//ëÂÇ´Ç¢èÍçá
 			}else{
 				//ÇPÇ¬è¨Ç≥Ç¢ëfêîÇíTÇ∑
-				PrimeNumB2 = previousPrimeNum(PrimeNumB2, 0);
-				CompositeNumN2 = PrimeNumA * PrimeNumB2;
+				PrimeNumB = previousPrimeNum(PrimeNumB, 0);
+				CompositeNumN = PrimeNumA * PrimeNumB;
 						
 				//åÛï‚Ç™åªç›ÇÃNà»è„Ç©
-				if(CompositeNumN2 >= CompositeNumNLast){
+				if(CompositeNumN >= CompositeNumNLast){
 				//B2ÇBÇ∆ÇµÇƒämíË
 					PrimeNumALast = PrimeNumA;
-					PrimeNumBLast = PrimeNumB2;
-					CompositeNumNLast = CompositeNumN2; 
+					PrimeNumBLast = PrimeNumB;
+					CompositeNumNLast = CompositeNumN; 
 					System.out.println("PrimeNumB(2nd candidate is optimum solution)  = " + PrimeNumBLast +
 									"   N = " + CompositeNumNLast );
 				}else{
-					System.out.println("PrimeNumB(2nd candidate is no optimum solution)  = " + PrimeNumB2 +
-									"   N = " + CompositeNumN2 );
+					System.out.println("PrimeNumB(2nd candidate is no optimum solution)  = " + PrimeNumB +
+									"   N = " + CompositeNumN );
 				}
 			}
 			

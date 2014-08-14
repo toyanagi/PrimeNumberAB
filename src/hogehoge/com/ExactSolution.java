@@ -2,11 +2,11 @@ package hogehoge.com;
 
 //Œµ–§‰ğ‚ğ‹‚ß‚é‚½‚ß‚ÌƒNƒ‰ƒX
 public class ExactSolution {
-	static final int NumLen = 9;
-	static final int NumLenA = 4;
+	static final int NumLen = 13;
+	static final int NumLenA = 5;
 	//static final int NumLenB = 6;
 	//static final int UpLimitLen =200000;
-	static final int UpLimit =100000;
+	static final int UpLimit =333333333;
 	static boolean[] sieve = new boolean[UpLimit];
 	static int[] sosuList = new int[UpLimit/5];
 	

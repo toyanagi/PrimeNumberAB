@@ -2,10 +2,10 @@ package hogehoge.com;
 
 //åµñßâÇãÅÇﬂÇÈÇΩÇﬂÇÃÉNÉâÉX
 public class ExactSolution {
-	static final int NumLen = 12;
-	static final int NumLenA = 6;
-	static final int NumLenB = 6;
-	static final int UpLimitLen =100000;
+	static final int NumLen = 9;
+	static final int NumLenA = 4;
+	//static final int NumLenB = 6;
+	//static final int UpLimitLen =200000;
 	static final int UpLimit =100000;
 	static boolean[] sieve = new boolean[UpLimit];
 	static int[] sosuList = new int[UpLimit/5];
@@ -17,13 +17,13 @@ public class ExactSolution {
 		int n=0;
 		for (int i=0; i<sosuList.length ; i++){
 			if(sosuList[i] != 0){
-				System.out.print(sosuList[i]);
+			//	System.out.print(sosuList[i]);
 				n++;
-				if(n%100 ==0){
-					System.out.println();
-				}else{
-					System.out.print(" ");
-				}
+			//	if(n%100 ==0){
+			//		System.out.println();
+			//	}else{
+			//		System.out.print(" ");
+			//	}
 			}
 		}
 		System.out.println();
@@ -31,18 +31,20 @@ public class ExactSolution {
 		
 		//åµñßâÇéZèo
 		long candidate[] = {0,0};
-		long max=(long)Math.pow(10, NumLen)-1;
-		long min=(long)Math.pow(10, NumLenA-1);
+		long max=(long)Math.pow(10, NumLen)-1;  //999999999
+		long min=(long)Math.pow(10, NumLenA-1); //10000
 		int count=0;
 		
 		System.out.println("The number of max = " + max);
 		System.out.println("The number of min = " + min);
 				
 		A:for (long N=max; N>=min ; N -= 2){
+			//System.out.println(" candidate = N :" + N);
 			B:for (int i=0; i<sosuList.length ; i++){
 				if(sosuList[i] != 0){
 					if( N % sosuList[i] == 0 ){
 						count++;
+						//System.out.println(" candidate = " + count + ":" + sosuList[i]);
 						if(count>=3){
 							count=0;
 							break B;
@@ -55,10 +57,20 @@ public class ExactSolution {
 						
 						candidate[count-1]=sosuList[i];	
 						if(count==2){
-							break A;
+							if(candidate[0] * candidate[1] == N){
+								System.out.println(" candidate = N :" + candidate[0] * candidate[1] +
+									                        " A=" + candidate[0] +
+									                        " B=" + candidate[1]); 
+							
+								break B;
+							}else{
+								count=0;
+								break B;
+							}
 						}
 					}
 				}else if(sosuList[i] == 0){
+					count=0;
 					break B;
 				}
 			}			

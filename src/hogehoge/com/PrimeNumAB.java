@@ -7,6 +7,8 @@ public class PrimeNumAB {
 	//定数の定義
 	static final BigInteger minPrimeNum = new BigInteger("10000");    //最小の素数（５ケタ）
 	static final long minPrimeNumLength = 5;    //最小の素数の桁数（５ケタ）
+	static final int searchLimit = 1;    //各桁ごとの探索回数
+	static final int checkPrimeMode = 1;    //素数判定モード
 	
 	//変数の定義
 	static int CompositeNumNLength;    //Nの桁数
@@ -63,16 +65,17 @@ public class PrimeNumAB {
 		//結果を出力
 		System.out.println("----------" );
 		
-		//Nを出力
-		//CompositeNumN = PrimeNumA * PrimeNumB;
-		System.out.println("CompositeNumN = " + CompositeNumNLast + " = " + PrimeNumALast + 
-				" * " + PrimeNumBLast );
-		
-		//実行時間計測
-		long stopTime = System.currentTimeMillis();
-		
-		//実行時間を出力
-		System.out.println("Run Time = " + (stopTime - startTime) + " ms " );
+		System.out.print("Increase Approach CompositeNumN = " + 
+			       formatNumber(CompositeNumNLast) + " = " + 
+				   formatNumber(PrimeNumALast) + " * "+
+			       formatNumber(PrimeNumBLast) + 
+			       " searchLimt = " + searchLimit + " checkPrimeMode=" + checkPrimeMode);
+			
+			//実行時間計測
+			long stopTime = System.currentTimeMillis();
+			
+			//実行時間を出力
+			System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 	}
 	
@@ -91,7 +94,7 @@ public class PrimeNumAB {
 		PrimeNumA = new BigInteger(buf.toString());
 				
 		//A,Bを探索する
-		for(int j=1;j<=100;j++){
+		for(int j=1;j<=searchLimit;j++){
 			
 			//System.out.println("PrimeNumA2(initial) = " + PrimeNumA );
 			PrimeNumA = previousPrimeNum(PrimeNumA, 0);
@@ -153,7 +156,7 @@ public class PrimeNumAB {
 	
 	//次の素数を探索するメソッド
 	private static BigInteger nextPrimeNum(BigInteger startNumber,int mode){
-		while(isPrimeNum(startNumber,0)==0){
+		while(isPrimeNum(startNumber,checkPrimeMode)==0){
 			System.out.println("PrimeNumB(2nd check no candidate)  = " + startNumber );
 			startNumber.add(startNumber);
 		}
@@ -165,7 +168,7 @@ public class PrimeNumAB {
 	
 	//前の素数を探索するメソッド
 	private static BigInteger previousPrimeNum(BigInteger startNumber,int mode){
-		while(isPrimeNum(startNumber,1)==0){
+		while(isPrimeNum(startNumber,checkPrimeMode)==0){
 			startNumber = startNumber.subtract(BigInteger.ONE);;
 			
 			//5桁以下になったら0を返す
@@ -216,5 +219,24 @@ public class PrimeNumAB {
         } while(b2.compareTo(b1) < 0);      
             return b1;
     }
+	
+	private static String formatNumber(BigInteger convNum){
+		String tempStr=convNum.toString();
+		int len=tempStr.length();
+		//System.out.println("String len " + convNum + " = " + len);
+		
+		StringBuffer buf = new StringBuffer();
+		//buf.append("1");
+	    for (int i = 0; i < len-1; i++) {
+	            buf.append(tempStr.substring(i,i+1));
+	            if((len-i-1)%5==0){
+	            	buf.append(" ");
+	            }
+	        }
+	    buf.append(tempStr.substring(len-1,len));
+	    buf.append("(" + len + ")");
+		
+		return buf.toString();
+	}
 
 }

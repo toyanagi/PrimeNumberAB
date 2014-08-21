@@ -7,8 +7,8 @@ public class PrimeNumAB {
 	//定数の定義
 	static final BigInteger minPrimeNum = new BigInteger("10000");    //最小の素数（５ケタ）
 	static final long minPrimeNumLength = 5;    //最小の素数の桁数（５ケタ）
-	static final int searchLimit = 1;    //各桁ごとの探索回数
-	static final int checkPrimeMode = 1;    //素数判定モード
+	static final int searchLimit = 10000;    //各桁ごとの探索回数
+	static final int checkPrimeMode = 0;    //素数判定モード
 	
 	//変数の定義
 	static int CompositeNumNLength;    //Nの桁数

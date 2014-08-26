@@ -23,6 +23,7 @@ public class BigNumber {
 	//定数
 	//private final int longTypelen=9;
 	private final int intTypelen=9;
+	private final int longTypelen=18;
 	private final int intMax=999999999;
 	public static final BigNumber ZERO=new BigNumber("0");
 	public static final BigNumber ONE=new BigNumber("1");
@@ -30,8 +31,8 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "11111111111";
-		String str2=  "11111111111";
+		String str=   "123456789";
+		String str2=  "0123";
 		
 		BigNumber num=new BigNumber(str);
 		BigInteger numi=new BigInteger(str);
@@ -46,6 +47,9 @@ public class BigNumber {
 		System.out.println(numi.subtract(numi2));
 		System.out.println(num.multiply(num2));
 		System.out.println(numi.multiply(numi2));
+		System.out.println(numi.divide(numi2));
+		System.out.println(num.divide(num2));
+		
 		
 	}
 	
@@ -153,6 +157,7 @@ public class BigNumber {
 		return newnum;
 	}
 	
+	//減算する
 	public BigNumber subtract(BigNumber num){
 		
 		//正負のパターンチェック	
@@ -228,6 +233,7 @@ public class BigNumber {
 		return newnum;
 	}
 
+	//積を求める
 	public BigNumber multiply(BigNumber num){
 		
 		if(this.compareTo(ZERO)==0 || num.compareTo(ZERO)==0){
@@ -249,10 +255,17 @@ public class BigNumber {
 				templ = (long)(newnum.words[x+y]) + matrix[x][y];
 				if(templ>intMax){
 					incDigit =  templ / (intMax+1);
-					newnum.words[x+y+1] += incDigit;
-					newnum.words[x+y] += (templ - incDigit * (intMax+1));
+					newnum.words[x+y] = (int)(templ - incDigit * (intMax+1));
+					if(newnum.words[x+y+1] + incDigit > intMax){
+						templ = newnum.words[x+y+1] + incDigit;
+						incDigit =  templ / (intMax+1);
+						newnum.words[x+y+1] = (int)(templ - incDigit * (intMax+1));
+						newnum.words[x+y+2] += incDigit;
+					}else{
+						newnum.words[x+y+1] += incDigit;
+					}				
 				}else{
-					newnum.words[x+y] += templ;
+					newnum.words[x+y] = (int)templ;
 				}
 			}				
 		}
@@ -271,6 +284,80 @@ public class BigNumber {
 				
 		return newnum;
 	}
+	
+	//商除を求める(小数点以下は切り下げる）
+	public BigNumber divide(BigNumber num){
+		
+		//ゼロ除算の場合は例外を返す
+		if(num.compareTo(BigNumber.ZERO) == 0 )
+			throw new ArithmeticException("ZERO Division");
+				
+		//割る数の方が大きい場合はゼロを返す
+		if(this.compareTo(num) < 0 )
+			return new BigNumber("0");
+		
+		StringBuffer buf = new StringBuffer();
+		
+		//割る数で桁数固定
+		BigNumber tempnumx= new BigNumber();
+		BigNumber tempnummul= new BigNumber();
+		BigNumber tempnumrem= new BigNumber();
+		int tempx;
+		int tempy;
+		int tempdiv;
+		
+		String tempxstr=this.getWordsRaw();
+		String tempystr=num.getWordsRaw();
+		
+		tempx = Integer.parseInt(tempxstr.substring(0, num.length-1));
+
+		if(num.length > intTypelen){
+			tempy = Integer.parseInt(tempystr.substring(0, intTypelen));
+		}else{
+			tempy = Integer.parseInt(tempystr);
+		}
+		tempdiv = tempx/tempy;  //仮の商
+		
+		tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
+		
+		for(int i=0;i< this.length - num.length +1 ;i++){
+			loopWhile:
+			while(tempdiv>0){
+				tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+				tempnumrem = tempnumx.subtract(tempnummul);
+							
+				if(tempnumx.compareTo(tempnummul) < 0){
+					tempdiv--;
+					continue loopWhile;
+				}
+				if(tempnumrem.compareTo(ZERO) < 0){
+					tempdiv++;
+					continue loopWhile;
+				}
+				break loopWhile;
+			}
+					
+			//商を確定（１桁分）
+			buf.append(tempdiv);
+			
+			tempnumx = new BigNumber(tempnumrem.getWordsRaw() +
+					tempxstr.substring(i+num.length-1, i+num.length));
+			
+			if(tempnumx.length > intTypelen){
+				tempx = Integer.parseInt(tempnumx.getWordsRaw().substring(0, intTypelen));
+			}else{
+				tempx = Integer.parseInt(tempnumx.getWordsRaw());
+			}
+			tempdiv = tempx/tempy;  //仮の商
+		}
+				
+		BigNumber newnum = new BigNumber(buf.toString());
+		newnum.isnegative = ( this.isnegative ^ num.isnegative );
+		
+		return newnum;
+	}
+	
+	//２つの数値を比較する
 	public int compareTo(BigNumber num){
 		
 		if( this.isnegative ^ num.isnegative ){

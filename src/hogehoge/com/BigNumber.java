@@ -31,8 +31,8 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "123456789";
-		String str2=  "0123";
+		String str=   "12349999999999999999956";
+		String str2=  "2999999922";
 		
 		BigNumber num=new BigNumber(str);
 		BigInteger numi=new BigInteger(str);
@@ -49,6 +49,8 @@ public class BigNumber {
 		System.out.println(numi.multiply(numi2));
 		System.out.println(numi.divide(numi2));
 		System.out.println(num.divide(num2));
+		System.out.println(numi.remainder(numi2));
+		System.out.println(num.remainder(num2));
 		
 		
 	}
@@ -286,16 +288,22 @@ public class BigNumber {
 	}
 	
 	//¤œ‚ğ‹‚ß‚é(¬”“_ˆÈ‰º‚ÍØ‚è‰º‚°‚éj
-	public BigNumber divide(BigNumber num){
+	public BigNumber[] divideandremainder(BigNumber num){
+		
+		BigNumber[] temp= new BigNumber[2];
 		
 		//ƒ[ƒœZ‚Ìê‡‚Í—áŠO‚ğ•Ô‚·
 		if(num.compareTo(BigNumber.ZERO) == 0 )
 			throw new ArithmeticException("ZERO Division");
 				
 		//Š„‚é”‚Ì•û‚ª‘å‚«‚¢ê‡‚Íƒ[ƒ‚ğ•Ô‚·
-		if(this.compareTo(num) < 0 )
-			return new BigNumber("0");
-		
+		if(this.compareTo(num) < 0 ){
+			temp[0]=ZERO;
+			temp[1]=new BigNumber(this.getWordsRaw());
+			temp[1].isnegative=this.isnegative;
+			return temp;
+		}
+			
 		StringBuffer buf = new StringBuffer();
 		
 		//Š„‚é”‚ÅŒ…”ŒÅ’è
@@ -305,43 +313,65 @@ public class BigNumber {
 		int tempx;
 		int tempy;
 		int tempdiv;
+		boolean existSol=false;
 		
 		String tempxstr=this.getWordsRaw();
 		String tempystr=num.getWordsRaw();
 		
-		tempx = Integer.parseInt(tempxstr.substring(0, num.length-1));
-
-		if(num.length > intTypelen){
-			tempy = Integer.parseInt(tempystr.substring(0, intTypelen));
+		if(num.length > intTypelen-1){
+			tempx = Integer.parseInt(tempxstr.substring(0, num.intTypelen-1));
+		}else{
+			tempx = Integer.parseInt(tempxstr.substring(0, num.length));
+		}
+		
+		if(num.length > intTypelen-1){
+			tempy = Integer.parseInt(tempystr.substring(0, intTypelen-1));
 		}else{
 			tempy = Integer.parseInt(tempystr);
 		}
 		tempdiv = tempx/tempy;  //‰¼‚Ì¤
 		
-		tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
+		//tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
+		tempnumx = new BigNumber(tempxstr.substring(0, num.length));
 		
-		for(int i=0;i< this.length - num.length +1 ;i++){
+		//for(int i=0;i<= this.length - num.length +1 ;i++){
+		for(int i=0;i<= this.length - num.length  ;i++){
+			
+			tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+			tempnumrem = tempnumx.subtract(tempnummul);
+			
 			loopWhile:
 			while(tempdiv>0){
-				tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
-				tempnumrem = tempnumx.subtract(tempnummul);
-							
+				
 				if(tempnumx.compareTo(tempnummul) < 0){
 					tempdiv--;
+					tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
 				if(tempnumrem.compareTo(ZERO) < 0){
 					tempdiv++;
+					tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
 				break loopWhile;
 			}
-					
+			
+			if(tempdiv!=0)
+				existSol=true;
+			
 			//¤‚ğŠm’èi‚PŒ…•ªj
-			buf.append(tempdiv);
+			if(existSol)
+				buf.append(tempdiv);
+			
+			//if(i==this.length - num.length+1)
+			if(i==this.length - num.length)
+				break;
 			
 			tempnumx = new BigNumber(tempnumrem.getWordsRaw() +
-					tempxstr.substring(i+num.length-1, i+num.length));
+					tempxstr.substring(i+num.length, i+num.length+1));
+			//		tempxstr.substring(i+num.length-1, i+num.length));
 			
 			if(tempnumx.length > intTypelen){
 				tempx = Integer.parseInt(tempnumx.getWordsRaw().substring(0, intTypelen));
@@ -354,7 +384,18 @@ public class BigNumber {
 		BigNumber newnum = new BigNumber(buf.toString());
 		newnum.isnegative = ( this.isnegative ^ num.isnegative );
 		
-		return newnum;
+		temp[0]=newnum;
+		temp[1]=tempnumrem;
+		
+		return temp;
+	}
+	
+	public BigNumber divide(BigNumber num){
+		return this.divideandremainder(num)[0];
+	}
+	
+	public BigNumber remainder(BigNumber num){
+		return this.divideandremainder(num)[1];
 	}
 	
 	//‚Q‚Â‚Ì”’l‚ğ”äŠr‚·‚é

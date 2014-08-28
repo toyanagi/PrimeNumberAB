@@ -27,6 +27,27 @@ public class BigNumber {
 	private final int intMax=999999999;
 	public static final BigNumber ZERO=new BigNumber("0");
 	public static final BigNumber ONE=new BigNumber("1");
+	public static final BigNumber MinusONE=new BigNumber("-1");
+	private static final int[] k = 
+		{100,150,200,250,300,350,400,5000,600,800,1250,Integer.MAX_VALUE};
+	private static final int[] t = 
+		{27,18,15,12,9,8,7,6,5,4,3,2};
+	private static final int[] primes= int[54];
+	private static final int minFixNum = -100;
+	private static final int maxFixNum = 1024;
+	private static final int numFixNum = maxFixNum-minFixNum+1;
+	private static final BigNumber[] smallFixNums = new BigNumber[numFixNum];
+	static
+	{
+	     for (int i = numFixNum;  --i >= 0; )
+	       smallFixNums[i] = new BigNumber(i + minFixNum);
+	}
+	static
+	{
+	     for (int i = numFixNum;  --i >= 0; )
+	       smallFixNums[i] = new BigNumber(i + minFixNum);
+	}
+	
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -93,6 +114,14 @@ public class BigNumber {
 		}
 	}
 	
+	public BigNumber(long l){
+		new BigNumber(Long.toString(l));
+	}
+	
+	public BigNumber(int i){
+		new BigNumber(Integer.toString(i));
+	}
+	
 	//正負を逆にする
 	public BigNumber negate(){
 		if((this.length==1) & (this.words[0]==0)){
@@ -108,6 +137,13 @@ public class BigNumber {
 	
 	public boolean isZero(){
 		if((this.length==1) & (this.words[0]==0)){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isOne(){
+		if((this.length==1) & (this.words[0]==1)){
 			return true;
 		}
 		return false;
@@ -533,6 +569,62 @@ public class BigNumber {
 		buf.append("(" + length + ")");
 	
 		return buf.toString();
+	}
+	
+	public boolean isProbablePrime(int cert){
+		int i;
+		//素数の簡易チェック
+		this.checkPrimeFirst();
+		
+		//ラビン・ミラー法で判定
+		BigNumber pMinus1=this.add(MinusONE);
+		int b=pMinus1.getLowestSetBit();
+		
+		BigNumber m = pMinus1.divide(new BigNumber(2L << b -1));
+		
+		int bits=this.bitLength();
+		
+		for(i=0;i<k.length;i++)
+			if(bits <= k[i])
+				break;
+		int trials=t[i];
+		
+		if(cert>80)
+			trials *= 2;
+		BigNumber z;
+		
+		for(int t=0;t<trials;t++){
+			z=smallFixNums[primes[t]-minFixNum].modPow(m,this);
+			if(z.isOne() || z.compareTo(pMinus1)==0)
+				continue;
+			
+			for(i=0;i<b;){
+				if(z.isOne())
+					return false;
+				i++;
+				if( z.compareTo(pMinus1)==0)
+					break;
+				z=z.modPow(new BigNumber(2L),this);
+			}
+			if(i==b && !(z.compareTo(pMinus1)==0))
+				return false;
+		}
+		return true;
+	}
+	
+	public boolean checkPrimeFirst(){
+		
+		return true;
+	}
+
+	public int getLowestSetBit(){
+		
+		return 0;
+	}
+	
+	public int bitLength(){
+		
+		return 0;
 	}
 	
 }

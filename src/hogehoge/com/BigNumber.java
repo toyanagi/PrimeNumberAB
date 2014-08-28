@@ -31,8 +31,9 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "12349999999999999999956";
-		String str2=  "2999999922";
+		String str=   "100000000000000000000000";
+		String str2= "-99999999999999999";
+		//String str2=   "-12345678987654321";
 		
 		BigNumber num=new BigNumber(str);
 		BigInteger numi=new BigInteger(str);
@@ -85,7 +86,7 @@ public class BigNumber {
 		int countLong=(int)Math.ceil((len-start)/(double)intTypelen);
 		words=new int[countLong];
 		for(int i=0; i<words.length; i++){
-			int startIndex=( len - intTypelen * (i+1)<0 ? start : len - intTypelen*(i+1)   );		
+			int startIndex=( len - intTypelen * (i+1)-start<0 ? start : len - intTypelen*(i+1)   );		
 			int endIndex=( len - intTypelen*i  );	
 			words[i]=Integer.parseInt(s.substring(startIndex, endIndex));
 			
@@ -105,8 +106,43 @@ public class BigNumber {
 		return newnum;
 	}
 	
+	public boolean isZero(){
+		if((this.length==1) & (this.words[0]==0)){
+			return true;
+		}
+		return false;
+	}
+	
+	public BigNumber copy(){
+		BigNumber newnum = new BigNumber();
+		newnum.words=this.words;
+		newnum.length=this.length;		
+		newnum.isnegative = this.isnegative;
+		return newnum;
+	}
+	
+	//ê‚ëŒílÇï‘Ç∑
+	public BigNumber abs(){
+		if((this.length==1) & (this.words[0]==0)){
+			return new BigNumber("0");
+		}
+		
+		BigNumber newnum = new BigNumber();
+		newnum.words=this.words;
+		newnum.length=this.length;		
+		newnum.isnegative = ( this.isnegative ? false : false );
+			
+		return newnum;
+	}
+	
 	//â¡éZÇ∑ÇÈ
 	public BigNumber add(BigNumber num){
+		
+		//Ç«ÇøÇÁÇ©Ç™É[ÉçÇÃèÍçá
+		if(this.isZero()) 
+			return num.copy();
+		if(num.isZero()) 
+			return this.copy();	
 		
 		if( this.isnegative ^ num.isnegative){
 			if(num.isnegative){
@@ -162,6 +198,12 @@ public class BigNumber {
 	//å∏éZÇ∑ÇÈ
 	public BigNumber subtract(BigNumber num){
 		
+		//Ç«ÇøÇÁÇ©Ç™É[ÉçÇÃèÍçá
+		if(this.isZero()) 
+			return num.negate();
+		if(num.isZero()) 
+			return this.copy();			
+		
 		//ê≥ïâÇÃÉpÉ^Å[ÉìÉ`ÉFÉbÉN	
 		if( (!this.isnegative) && num.isnegative){
 			return this.add(num.negate());			
@@ -173,6 +215,7 @@ public class BigNumber {
 		
 		//ëÂè¨î‰är
 		int comp=this.compareTo(num);
+		comp=comp+0;
 		if(comp==0){
 			return new BigNumber("0");
 		}else if(comp<0){
@@ -238,7 +281,7 @@ public class BigNumber {
 	//êœÇãÅÇﬂÇÈ
 	public BigNumber multiply(BigNumber num){
 		
-		if(this.compareTo(ZERO)==0 || num.compareTo(ZERO)==0){
+		if(this.isZero() || num.isZero()){
 			return new BigNumber("0");
 		}
 		
@@ -292,18 +335,26 @@ public class BigNumber {
 		
 		BigNumber[] temp= new BigNumber[2];
 		
-		//É[ÉçèúéZÇÃèÍçáÇÕó·äOÇï‘Ç∑
-		if(num.compareTo(BigNumber.ZERO) == 0 )
-			throw new ArithmeticException("ZERO Division");
-				
+		//Ç«ÇøÇÁÇ©Ç™É[ÉçÇÃèÍçá
+		if(this.isZero()){
+			temp[0]=ZERO;
+			temp[1]=ZERO;
+			return temp;
+		}
+		if(num.isZero()) //É[ÉçèúéZÇÃèÍçáÇÕó·äOÇï‘Ç∑
+			throw new ArithmeticException("ZERO Division");	
+		
+		BigNumber tempthis= this.abs();
+		BigNumber tempnum= num.abs();
+		
 		//äÑÇÈêîÇÃï˚Ç™ëÂÇ´Ç¢èÍçáÇÕÉ[ÉçÇï‘Ç∑
-		if(this.compareTo(num) < 0 ){
+		if(tempthis.compareTo(tempnum.abs()) < 0 ){
 			temp[0]=ZERO;
 			temp[1]=new BigNumber(this.getWordsRaw());
 			temp[1].isnegative=this.isnegative;
 			return temp;
 		}
-			
+		
 		StringBuffer buf = new StringBuffer();
 		
 		//äÑÇÈêîÇ≈åÖêîå≈íË
@@ -315,16 +366,16 @@ public class BigNumber {
 		int tempdiv;
 		boolean existSol=false;
 		
-		String tempxstr=this.getWordsRaw();
-		String tempystr=num.getWordsRaw();
+		String tempxstr=tempthis.getWordsRaw();
+		String tempystr=tempnum.getWordsRaw();
 		
-		if(num.length > intTypelen-1){
-			tempx = Integer.parseInt(tempxstr.substring(0, num.intTypelen-1));
+		if(tempnum.length > intTypelen-1){
+			tempx = Integer.parseInt(tempxstr.substring(0, intTypelen-1));
 		}else{
-			tempx = Integer.parseInt(tempxstr.substring(0, num.length));
+			tempx = Integer.parseInt(tempxstr.substring(0, tempnum.length));
 		}
 		
-		if(num.length > intTypelen-1){
+		if(tempnum.length > intTypelen-1){
 			tempy = Integer.parseInt(tempystr.substring(0, intTypelen-1));
 		}else{
 			tempy = Integer.parseInt(tempystr);
@@ -332,12 +383,12 @@ public class BigNumber {
 		tempdiv = tempx/tempy;  //âºÇÃè§
 		
 		//tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
-		tempnumx = new BigNumber(tempxstr.substring(0, num.length));
+		tempnumx = new BigNumber(tempxstr.substring(0, tempnum.length));
 		
 		//for(int i=0;i<= this.length - num.length +1 ;i++){
-		for(int i=0;i<= this.length - num.length  ;i++){
+		for(int i=0;i<= tempthis.length - tempnum.length  ;i++){
 			
-			tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+			tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 			tempnumrem = tempnumx.subtract(tempnummul);
 			
 			loopWhile:
@@ -345,13 +396,13 @@ public class BigNumber {
 				
 				if(tempnumx.compareTo(tempnummul) < 0){
 					tempdiv--;
-					tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
 				if(tempnumrem.compareTo(ZERO) < 0){
 					tempdiv++;
-					tempnummul = num.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
@@ -366,11 +417,11 @@ public class BigNumber {
 				buf.append(tempdiv);
 			
 			//if(i==this.length - num.length+1)
-			if(i==this.length - num.length)
+			if(i==tempthis.length - tempnum.length)
 				break;
 			
 			tempnumx = new BigNumber(tempnumrem.getWordsRaw() +
-					tempxstr.substring(i+num.length, i+num.length+1));
+					tempxstr.substring(i+tempnum.length, i+tempnum.length+1));
 			//		tempxstr.substring(i+num.length-1, i+num.length));
 			
 			if(tempnumx.length > intTypelen){
@@ -385,7 +436,16 @@ public class BigNumber {
 		newnum.isnegative = ( this.isnegative ^ num.isnegative );
 		
 		temp[0]=newnum;
-		temp[1]=tempnumrem;
+		if(this.isnegative & !num.isnegative){
+			temp[1]=tempnumrem.negate();
+		}else if(this.isnegative & num.isnegative){
+			temp[1]=tempnumrem.negate();
+		}else if(!this.isnegative & num.isnegative){
+			temp[1]=tempnumrem;
+		}else{
+			temp[1]=tempnumrem;
+		}
+		
 		
 		return temp;
 	}

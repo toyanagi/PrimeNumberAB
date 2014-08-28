@@ -7,7 +7,7 @@ public class PrimeNumAB2 {
 	//定数の定義
 	static final BigInteger minPrimeNum = new BigInteger("10000");    //最小の素数（５ケタ）
 	static final int minPrimeNumLength = 5;    //最小の素数の桁数（５ケタ）
-	static final int searchLimit = 1;    //各桁ごとの探索回数
+	static final int searchLimit = 100000;    //各桁ごとの探索回数
 	static final int checkPrimeMode = 1;    //素数判定モード
 	
 	//変数の定義
@@ -53,13 +53,26 @@ public class PrimeNumAB2 {
 	    
 		//searchAB();
 		
-		
+		/// 離れた桁数→近い桁数　ex)100ケタなら5・95桁⇒・・・⇒49・51
 		//Bの桁数がminPrimeNumLength(=5ケタ）以上の間、A,Bを探索
 		while ( PrimeNumALength <=  PrimeNumBLength) {
+			long temp1 = System.currentTimeMillis();
 			searchAB();
+			long temp2 = System.currentTimeMillis();
+			System.out.println(" Run Time = " + (temp2 - temp1) + " ms " );
 			PrimeNumALength++;
 			PrimeNumBLength--;
 		}
+		
+	    
+	    // 近い桁数→離れた桁数　ex)100ケタなら49・51桁⇒・・・⇒5・95
+		//Bの桁数がminPrimeNumLength(=5ケタ）以上の間、A,Bを探索
+		while ( PrimeNumALength >=  minPrimeNumLength) {
+			//searchAB();
+			PrimeNumALength--;
+			PrimeNumBLength++;
+		}
+		
 		
 		
 		//結果を出力

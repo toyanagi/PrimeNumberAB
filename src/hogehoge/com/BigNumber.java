@@ -27,12 +27,38 @@ public class BigNumber {
 	private final int intMax=999999999;
 	public static final BigNumber ZERO=new BigNumber("0");
 	public static final BigNumber ONE=new BigNumber("1");
+	public static final BigNumber TWO=new BigNumber("2");
 	public static final BigNumber MinusONE=new BigNumber("-1");
 	private static final int[] k = 
 		{100,150,200,250,300,350,400,5000,600,800,1250,Integer.MAX_VALUE};
 	private static final int[] t = 
 		{27,18,15,12,9,8,7,6,5,4,3,2};
-	private static final int[] primes= int[54];
+	private static final int[] primes=
+		{2,3,5,7,11,13,17,19,23,29,31,37,41,43,
+		47,53,59,61,67,71,73,79,83,89,97,101,103,107,
+		109,113,127,131,137,139,149,151,157,163,167,173,179,181,
+		191,193,197,199,211,223,227,229,233,239,241,251};
+	/*static{
+		int check=2;
+		int div=2;
+		for(int i=0;i<54;i++){
+			
+			loop1:
+			while( ( check % div ) ==0){
+				if(check==div){
+					primes[i]=check;
+					System.out.println("primes[" + i + "]=" +check);
+					check++;
+					div=2;
+					break loop1;
+				}else{
+					check++;
+					div=2;
+				}
+				div++;
+			}
+		}
+	}*/
 	private static final int minFixNum = -100;
 	private static final int maxFixNum = 1024;
 	private static final int numFixNum = maxFixNum-minFixNum+1;
@@ -42,20 +68,58 @@ public class BigNumber {
 	     for (int i = numFixNum;  --i >= 0; )
 	       smallFixNums[i] = new BigNumber(i + minFixNum);
 	}
-	static
-	{
-	     for (int i = numFixNum;  --i >= 0; )
-	       smallFixNums[i] = new BigNumber(i + minFixNum);
-	}
-	
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
 		String str=   "100000000000000000000000";
 		String str2= "-99999999999999999";
+		//String str3= "320989741";
+		String str3= "97";
 		//String str2=   "-12345678987654321";
 		
+		BigNumber num=new BigNumber(str3);
+		BigInteger numi=new BigInteger(str3);
+		System.out.println(num);
+		
+		System.out.println("comp:" + TWO.compareTo(TWO));
+		
+		//実行時間計測
+		long startTime = System.currentTimeMillis();		
+		long stopTime = System.currentTimeMillis();
+		/*
+		System.out.println("BI getLowestBitSet: " + numi.getLowestSetBit());
+		long stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN getLowestBitSet: " + num.getLowestSetBit());
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BI getBitLen: " + numi.bitLength());
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN getBitLen: " + num.bitLength());
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		*/
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BI isPrime: " + numi.isProbablePrime(50));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN isPrime: " + num.isProbablePrime(50));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		/*
 		BigNumber num=new BigNumber(str);
 		BigInteger numi=new BigInteger(str);
 		System.out.println(num);
@@ -73,7 +137,7 @@ public class BigNumber {
 		System.out.println(num.divide(num2));
 		System.out.println(numi.remainder(numi2));
 		System.out.println(num.remainder(num2));
-		
+		*/
 		
 	}
 	
@@ -94,6 +158,18 @@ public class BigNumber {
 			isnegative=false;
 			length=len;
 			start=0;
+		}
+		
+		while(s.charAt(start)=='0'){
+			start++;
+			if(start==len){
+				length=1;
+				words=new int[1];
+				words[0]=0;
+				isnegative=false;
+				return;
+			}
+			length--;
 		}
 		
 		//long型に収まる桁数ならlong型で保持
@@ -119,7 +195,14 @@ public class BigNumber {
 	}
 	
 	public BigNumber(int i){
-		new BigNumber(Integer.toString(i));
+		i = i<0 ? i * (-1) : i ;
+		int len = Integer.toString(i).length();
+		length = i<0 ? len -1 : len ;
+		isnegative = i<0 ? true : false ;
+		
+		words=new int[1];
+		words[0]= i<0 ? i * (-1) : i ;
+		isnegative=false;
 	}
 	
 	//正負を逆にする
@@ -251,7 +334,7 @@ public class BigNumber {
 		
 		//大小比較
 		int comp=this.compareTo(num);
-		comp=comp+0;
+		//comp=comp+0;
 		if(comp==0){
 			return new BigNumber("0");
 		}else if(comp<0){
@@ -497,14 +580,18 @@ public class BigNumber {
 	//２つの数値を比較する
 	public int compareTo(BigNumber num){
 		
+		//片方が負数の場合
 		if( this.isnegative ^ num.isnegative ){
 			return (this.isnegative ? -1 : 1 );
 		}
 		
+		//桁数が違う場合
 		if(this.length>num.length){
 			return (this.isnegative ? -1 : 1 );
 		}else if(this.length<num.length){
 			return (this.isnegative ? 1 : -1 );
+			
+		//桁数が同じ場合
 		}else{
 			for(int i=this.words.length-1;i>=0;i--){
 				if(this.words[i]>num.words[i]){
@@ -579,8 +666,9 @@ public class BigNumber {
 		//ラビン・ミラー法で判定
 		BigNumber pMinus1=this.add(MinusONE);
 		int b=pMinus1.getLowestSetBit();
-		
-		BigNumber m = pMinus1.divide(new BigNumber(2L << b -1));
+		System.out.println( (2L << b - 1) );
+		BigNumber divtemp = new BigNumber(Long.toString(2L << b - 1));
+		BigNumber m = pMinus1.divide(divtemp);
 		
 		int bits=this.bitLength();
 		
@@ -604,7 +692,7 @@ public class BigNumber {
 				i++;
 				if( z.compareTo(pMinus1)==0)
 					break;
-				z=z.modPow(new BigNumber(2L),this);
+				z=z.modPow(TWO,this);
 			}
 			if(i==b && !(z.compareTo(pMinus1)==0))
 				return false;
@@ -612,19 +700,66 @@ public class BigNumber {
 		return true;
 	}
 	
+	public BigNumber modPow(BigNumber exp,BigNumber m){
+		if(m.isnegative || m.isZero())
+			throw new ArithmeticException("non positive modulo");
+		
+		if(exp.isnegative)
+			throw new ArithmeticException("non positive exp");
+		
+		if(exp.isOne())
+			return mod(m);
+		
+		BigNumber s=ONE;
+		BigNumber t=this;
+		BigNumber u =exp;
+		
+		while(!u.isZero()){
+			//if(u.and(ONE).isOne){
+			if(u.words[0] % 2 == 1){
+				s=s.multiply(t).mod(m);
+			}
+			//u=u.shiftRight(1);
+			u=u.divide(TWO);
+			s=t.multiply(t).mod(m);
+		}
+			
+		return s;
+	}
+	
+	public BigNumber mod(BigNumber m){
+		if(m.isnegative || m.isZero())
+			throw new ArithmeticException("non positive modulus");
+		
+		return this.remainder(m);
+	}
+	
 	public boolean checkPrimeFirst(){
 		
 		return true;
 	}
 
+	
 	public int getLowestSetBit(){
 		
-		return 0;
+		if(this.isZero())
+			return -1;
+		
+		int i=0;
+		BigNumber temp[] = this.divideandremainder(TWO);
+		while(temp[1].compareTo(ZERO)==0){
+			i++;
+			temp=temp[0].divideandremainder(TWO);
+		}
+		return i;
 	}
 	
+	//2進数表現時のビット数を返却
+	// log2(A)=log10(A)/log10(2)で近似値を求める
 	public int bitLength(){
-		
-		return 0;
+		//log10(2)=0.30102999
+		return (int)((this.length-0.5)/0.30102999);
 	}
+	
 	
 }

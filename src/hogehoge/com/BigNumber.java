@@ -30,7 +30,7 @@ public class BigNumber {
 	public static final BigNumber TWO=new BigNumber("2");
 	public static final BigNumber MinusONE=new BigNumber("-1");
 	private static final int[] k = 
-		{100,150,200,250,300,350,400,5000,600,800,1250,Integer.MAX_VALUE};
+		{100,150,200,250,300,350,400,500,600,800,1250,Integer.MAX_VALUE};
 	private static final int[] t = 
 		{27,18,15,12,9,8,7,6,5,4,3,2};
 	private static final int[] primes=
@@ -72,28 +72,58 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "100000000000000000000000";
+		String str=   "112345";
 		String str2= "-99999999999999999";
 		//String str3= "320989741";
-		String str3= "97";
+		String str3= "999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323";
+		//String str3= "97";
 		//String str2=   "-12345678987654321";
 		
 		BigNumber num=new BigNumber(str3);
 		BigInteger numi=new BigInteger(str3);
+		BigNumber num2=new BigNumber(str);
+		BigInteger numi2=new BigInteger(str);
 		System.out.println(num);
+		BigNumber num3=new BigNumber("3");
+		BigNumber num97=new BigNumber("97");
+		//System.out.println("comp:" + TWO.compareTo(TWO));
 		
-		System.out.println("comp:" + TWO.compareTo(TWO));
-		
+		//System.out.println("2^3 mod 97:" + TWO.modPow(num3, num97));
 		//é¿çséûä‘åvë™
 		long startTime = System.currentTimeMillis();		
 		long stopTime = System.currentTimeMillis();
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BI divide: " + numi.divide(numi2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN divide: " + num.divide(num2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BI times: " + numi.multiply(numi2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN times: " + num.multiply(num2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
 		/*
 		System.out.println("BI getLowestBitSet: " + numi.getLowestSetBit());
 		long stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
-		startTime = System.currentTimeMillis();
-		System.out.println("BN getLowestBitSet: " + num.getLowestSetBit());
+		startTime = System.currentTimeMillis();*/
+		System.out.println("BN getBitLen: " + num.bitLength());
+		System.out.println("BI getBitLen: " + numi.bitLength());
+		System.out.println("BN getLowestBitSet: " + num.add(MinusONE).getLowestSetBit());
+		System.out.println("BI getLowestBitSet: " + numi.add(BigInteger.ONE.negate()).getLowestSetBit());
+		/*
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
@@ -110,12 +140,12 @@ public class BigNumber {
 		*/
 		
 		startTime = System.currentTimeMillis();
-		System.out.println("BI isPrime: " + numi.isProbablePrime(50));
+		//System.out.println("BI isPrime: " + numi.isProbablePrime(50));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
-		System.out.println("BN isPrime: " + num.isProbablePrime(50));
+		//System.out.println("BN isPrime: " + num.isProbablePrime(50));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
@@ -721,7 +751,7 @@ public class BigNumber {
 			}
 			//u=u.shiftRight(1);
 			u=u.divide(TWO);
-			s=t.multiply(t).mod(m);
+			t=t.multiply(t).mod(m);
 		}
 			
 		return s;

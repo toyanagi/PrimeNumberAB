@@ -33,32 +33,13 @@ public class BigNumber {
 		{100,150,200,250,300,350,400,500,600,800,1250,Integer.MAX_VALUE};
 	private static final int[] t = 
 		{27,18,15,12,9,8,7,6,5,4,3,2};
-	private static final int[] primes=
+	private static int[] primes;
+	/*
 		{2,3,5,7,11,13,17,19,23,29,31,37,41,43,
 		47,53,59,61,67,71,73,79,83,89,97,101,103,107,
 		109,113,127,131,137,139,149,151,157,163,167,173,179,181,
 		191,193,197,199,211,223,227,229,233,239,241,251};
-	/*static{
-		int check=2;
-		int div=2;
-		for(int i=0;i<54;i++){
-			
-			loop1:
-			while( ( check % div ) ==0){
-				if(check==div){
-					primes[i]=check;
-					System.out.println("primes[" + i + "]=" +check);
-					check++;
-					div=2;
-					break loop1;
-				}else{
-					check++;
-					div=2;
-				}
-				div++;
-			}
-		}
-	}*/
+		*/
 	private static final int minFixNum = -100;
 	private static final int maxFixNum = 1024;
 	private static final int numFixNum = maxFixNum-minFixNum+1;
@@ -72,10 +53,17 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "112345";
-		String str2= "-99999999999999999";
-		//String str3= "320989741";
-		String str3= "999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323";
+		String str=   "11234";
+		String str2= "1000000000000015373";
+		BigNumber.initPrimeList();
+		BigNumber isp=new BigNumber(str2);
+		//System.out.println("check prime : " + isp);
+		//System.out.println("resule : " + isp.isProbablePrime(50));
+		
+		String str3= str2;
+		
+		
+		//String str3= "999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323999930048965723993204756670330768462076546417507744578794843609473368641950634555810932347356850204856600379734186069751132399300489657239932047566703307684620765464175077445787948436094733686419506345558109323473568502048566003797341860697511323";
 		//String str3= "97";
 		//String str2=   "-12345678987654321";
 		
@@ -93,23 +81,61 @@ public class BigNumber {
 		long startTime = System.currentTimeMillis();		
 		long stopTime = System.currentTimeMillis();
 		
+		System.out.println("BN aub: " + num.subtract(num2));
+		
 		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			numi.divide(numi2);
 		System.out.println("BI divide: " + numi.divide(numi2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			num.divide(num2);
 		System.out.println("BN divide: " + num.divide(num2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			numi.multiply(numi2);
 		System.out.println("BI times: " + numi.multiply(numi2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			num.multiply(num2);
 		System.out.println("BN times: " + num.multiply(num2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			numi.add(numi2);
+		System.out.println("BI add: " + numi.add(numi2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			num.add(num2);
+		System.out.println("BN add: " + num.add(num2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			numi.subtract(numi2);
+		System.out.println("BI sub: " + numi.subtract(numi2));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		for (int i=0;i<10000;i ++)
+			num.subtract(num2);
+		System.out.println("BN aub: " + num.subtract(num2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
@@ -169,6 +195,11 @@ public class BigNumber {
 		System.out.println(num.remainder(num2));
 		*/
 		
+	}
+	
+	public static void initPrimeList(){
+		//54番目までの素数リストを作成
+		primes=S1GP.sosuList(300, 54);
 	}
 	
 	public BigNumber(){
@@ -412,6 +443,8 @@ public class BigNumber {
 		for(int i=countInt-1;i>=0;i--){
 			if(newnum.words[i]==0){
 				newCountInt--;
+			}else{
+				break;
 			}
 		}
 		
@@ -635,7 +668,7 @@ public class BigNumber {
 	}
 	
 	//数値部分のみを返す（符号なし）
-	private String getWordsRaw(){
+	public String getWordsRaw(){
 		String temp;
 		StringBuffer buf = new StringBuffer();
 		buf.append(Integer.toString(words[words.length-1]));
@@ -691,12 +724,17 @@ public class BigNumber {
 	public boolean isProbablePrime(int cert){
 		int i;
 		//素数の簡易チェック
-		this.checkPrimeFirst();
+		for (i=0;i<primes.length;i++){
+			if(this.words.length == 1 && words[0] == primes[i])
+				return true;
+			if(this.remainder(smallFixNums[primes[i]-minFixNum]).isZero())
+				return false;
+		}
 		
 		//ラビン・ミラー法で判定
 		BigNumber pMinus1=this.add(MinusONE);
 		int b=pMinus1.getLowestSetBit();
-		System.out.println( (2L << b - 1) );
+		//System.out.println( (2L << b - 1) );
 		BigNumber divtemp = new BigNumber(Long.toString(2L << b - 1));
 		BigNumber m = pMinus1.divide(divtemp);
 		
@@ -765,6 +803,8 @@ public class BigNumber {
 	}
 	
 	public boolean checkPrimeFirst(){
+		int i;
+		
 		
 		return true;
 	}

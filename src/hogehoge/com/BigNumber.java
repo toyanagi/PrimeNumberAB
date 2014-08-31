@@ -40,6 +40,12 @@ public class BigNumber {
 		109,113,127,131,137,139,149,151,157,163,167,173,179,181,
 		191,193,197,199,211,223,227,229,233,239,241,251};
 		*/
+	
+	//素数マスクの作成
+	private static final int maskNum=7;
+	public static boolean[] primeMask;
+	public static int maskLen;
+	
 	private static final int minFixNum = -100;
 	private static final int maxFixNum = 1024;
 	private static final int numFixNum = maxFixNum-minFixNum+1;
@@ -56,6 +62,7 @@ public class BigNumber {
 		String str=   "11234";
 		String str2= "1000000000000015373";
 		BigNumber.initPrimeList();
+		makePrimeMask();
 		BigNumber isp=new BigNumber(str2);
 		//System.out.println("check prime : " + isp);
 		//System.out.println("resule : " + isp.isProbablePrime(50));
@@ -200,6 +207,36 @@ public class BigNumber {
 	public static void initPrimeList(){
 		//54番目までの素数リストを作成
 		primes=S1GP.sosuList(300, 54);
+	}
+	
+	public static void makePrimeMask(){
+		
+		long startTime = System.currentTimeMillis();
+		maskLen=1;
+		for(int i=0;i<maskNum;i++) maskLen *= primes[i];
+		System.out.println("MaskLen=" + maskLen);
+		
+		//マスクの初期化
+		primeMask =  new boolean[maskLen];
+		
+		for(int i=0;i<primeMask.length;i++){
+			primeMask[i]=true;
+		}
+		
+		int index=0;
+		//マスクのセット
+		for(int i=0;i<maskNum;i++){
+			int j=1;
+			index=j*primes[i];
+			while( index < maskLen){
+				primeMask[index]=false;
+				j++;
+				index=j*primes[i];
+			}
+			
+		}
+		System.out.println(" Run Time(makePrimeMask)= " + (System.currentTimeMillis() - startTime) + " ms " );
+		
 	}
 	
 	public BigNumber(){

@@ -4,17 +4,38 @@ import java.math.BigInteger;
 
 //厳密解を求めるためのクラス
 public class ExactSolution {
-	static final int NumLen = 19;
+	static int NumLen = 10;
 	static final int NumLenA = 5;
-	//static final int NumLenB = 6;
-	//static final int UpLimitLen =200000;
-	static final int UpLimit =333333333;
-	static boolean[] sieve = new boolean[UpLimit];
-	static int[] sosuList = new int[UpLimit/5];
+	static int UpLimit =99999;
+	static boolean[] sieve ;
+	static int[] sosuList ;
 	
 	public static void main(String[] args){
+		NumLen = Integer.parseInt(args[0]);
+		exactSol(NumLen);
+	}
+	
+	public static long[] exactSol(int num){
+		//素数を探す範囲を指定
+		if(num % 2 == 1){  //奇数なら
+			UpLimit=(int)Math.pow(10, ( (num+1)/2) ) / 3 ;
+		}else{  //偶数なら
+			UpLimit=(int)Math.pow(10, num/2 );
+		}
+		
+		sieve = new boolean[UpLimit];
+		sosuList = new int[UpLimit/5];
+		
+		System.out.println("UpLimit = " + UpLimit );
+		
 		//実行時間計測
 		long startTime = System.currentTimeMillis();
+		
+		//素数探索用マスク作成
+		BigNumber.initPrimeList();
+		BigNumber.makePrimeMask();
+		
+		//素数リストの作成
 		sieve();
 		sosuList();
 		//実行時間計測
@@ -40,14 +61,24 @@ public class ExactSolution {
 		
 		//厳密解を算出
 		long candidate[] = {0,0};
-		long max=(long)Math.pow(10, NumLen)-1;  //999999999
+		long max=(long)Math.pow(10, num)-1;  //999999999
 		long min=(long)Math.pow(10, NumLenA-1); //10000
 		int count=0;
 		
 		System.out.println("The number of max = " + max);
 		System.out.println("The number of min = " + min);
-				
-		A:for (long N=max; N>=min ; N -= 2){
+		
+		
+		A:for (long N=max; N>=min ; N -= 1){
+			/* /マスクを使って判定
+			int maskoffset = (int)(max % (long)BigNumber.maskLen) ;
+			if(!BigNumber.primeMask[maskoffset]){
+			int maskoffset = (int)(max % (long)BigNumber.maskLen) ;
+				maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset -1 );
+				continue;
+			}
+			maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );
+			*/
 			//System.out.println(" candidate = N :" + N);
 			B:for (int i=0; i<sosuList.length ; i++){
 				if(sosuList[i] != 0){
@@ -119,6 +150,15 @@ public class ExactSolution {
 						
 		//実行時間を出力
 		System.out.println("Run Time = " + (stopTime - startTime) + " ms " );
+		
+		long result[] = new long[3];
+		
+		result[0]=candidate[0];
+		result[1]=candidate[1];
+		result[2]=candidate[0] * candidate[1];
+		
+		return result;
+		
 	}
 	
 	private static void sosuList(){
@@ -137,6 +177,7 @@ public class ExactSolution {
 			}
 		}		
 		System.out.println("Last Prime Number = " +  sosuList[count-1]);
+		System.out.println(" count = " +  Integer.toString(count));
 	}
 	
 	private static String formatNumber(long convNum){
@@ -160,6 +201,11 @@ public class ExactSolution {
 	
 	private static int isPrimeNum(long PrimeNumber,int mode){
 		System.out.println("Prime Number check start : " +  PrimeNumber);
+		
+		//素数マスクで仮判定
+		//int maskoffset = (int)(PrimeNumber % BigNumber.maskLen) ;
+		//if(!BigNumber.primeMask[maskoffset]) return 0;
+		
 		//与えられた整数の平方根を探索の上限とする
 		 long rootPrimeNumber = (long)Math.sqrt(PrimeNumber);
 		 for (int i=0; i<sosuList.length ; i++){

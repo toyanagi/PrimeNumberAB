@@ -8,7 +8,7 @@ public class S1GP {
 	//定数の定義
 		static final BigNumber minPrimeNum = new BigNumber("10000");    //最小の素数（５ケタ）
 		static final int minPrimeNumLength = 5;    //最小の素数の桁数（５ケタ）
-		static final int searchLimit = 1;    //各桁ごとの探索回数
+		static int searchLimit = 1;    //各桁ごとの探索回数
 		static final int checkPrimeMode = 1;    //素数判定モード
 		
 		//変数の定義
@@ -28,7 +28,7 @@ public class S1GP {
 		static boolean isClose=false;
 		static long startTime=-1;
 		static long maxTime=0;
-		static long limitTIme=20*1000;
+		static long limitTIme=50*1000;
 		static long previousTime=0;
 		static long nowTime=0;
 		
@@ -44,13 +44,66 @@ public class S1GP {
 			PrimeNumALast =BigNumber.ZERO;
 			PrimeNumBLast=BigNumber.ZERO;
 			
+			//入力値の取得
+			// java S1GP Yの桁数 打ち切り判定時間 探索レベル 厳密解判定する最大桁数
+			CompositeNumNLength = Integer.parseInt(args[0]);
+			
+			//ファイル出力先
+			String outfile = "C:\\Users\\tomo\\output_"+ CompositeNumNLength + ".txt";
+			
+			//デフォルト値を設定
+			limitTIme=50*1000;  //打ち切り判定時間(デフォルト50秒)
+			searchLimit = 1;    //探索レベル (デフォルト1)
+			int useExactSol = 15;    //厳密解判定する最大桁数 (デフォルト15)
+			
+			if(args.length>=2) limitTIme = Integer.parseInt(args[1]) * 1000;
+			if(args.length>=3) searchLimit = Integer.parseInt(args[2]);
+			if(args.length>=4) useExactSol = Integer.parseInt(args[3]);
+
+			//設定値の表示
+			System.out.println("CompositNum N Length = " + CompositeNumNLength );
+			System.out.println("Limit Time = " + limitTIme + "msec" );
+			System.out.println("Serach Level = " + searchLimit  );
+			System.out.println("Use Exact Solution Method = " + useExactSol  );
+			
+			//厳密解を算出
+			if(CompositeNumNLength <= useExactSol){
+				long result[] = ExactSolution.exactSol(CompositeNumNLength);
+				
+				//ファイル出力
+				PrintWriter pw = null;
+		        try {
+		            // 出力先ファイル
+		            File file = new File(outfile);
+		            
+		            pw = new PrintWriter(file);
+		            pw.println(""  + result[0] + "," 
+		            		       + result[2] + ","
+		            		       + result[2]);
+		            
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } finally {
+		            if (pw != null) {
+		                // ストリームは必ず finally で close します。
+		                pw.close();
+		            }
+		        }
+		      //実行時間計測
+				long stopTime = System.currentTimeMillis();
+				
+				//実行時間を出力
+				System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+				return;
+			}
+			
+			//最適解を算出
 			//BigNumberクラス用素数リストの作成
 			BigNumber.initPrimeList();
 			
-			//入力値の取得
-			CompositeNumNLength = Integer.parseInt(args[0]);
-			System.out.println("CompositNum N Length = " + CompositeNumNLength );
-
+			//素数探索用マスク作成
+			BigNumber.makePrimeMask();
+						
 			//最初の桁数の決定
 			PrimeNumALength =  minPrimeNumLength;
 			PrimeNumBLength = CompositeNumNLength - minPrimeNumLength +1;
@@ -95,7 +148,7 @@ public class S1GP {
 			PrintWriter pw = null;
 	        try {
 	            // 出力先ファイル
-	            File file = new File("C:\\Users\\tomo\\output_"+ CompositeNumNLength + ".txt");
+	            File file = new File(outfile);
 	            
 	            pw = new PrintWriter(file);
 	            pw.println(""  + PrimeNumALast.getWordsRaw() + "," 
@@ -133,7 +186,7 @@ public class S1GP {
 			nowTime = System.currentTimeMillis() - startTime;
 			
 			//打ち切り判定
-			if(limitTIme - nowTime < maxTime * 2)
+			if(limitTIme - nowTime < maxTime * 3)
 				isClose =true;
 			
 			//最大時間の更新
@@ -224,7 +277,8 @@ public class S1GP {
 		}
 		
 		private static String formatNumber(BigNumber convNum){
-			String tempStr=convNum.toString();
+			return convNum.toString();
+			/*String tempStr=convNum.toString();
 			int len=tempStr.length();
 			//System.out.println("String len " + convNum + " = " + len);
 			
@@ -240,11 +294,12 @@ public class S1GP {
 		    buf.append("(" + len + ")");
 			
 			return buf.toString();
+			*/
 		}
 		
 		//次の素数を探索するメソッド
 		private static BigNumber nextPrimeNum(BigNumber startNumber,int mode){
-			System.out.println("NextP");
+			//System.out.println("NextP");
 			while(isPrimeNum(startNumber,checkPrimeMode)==0){
 				startNumber = startNumber.add(BigNumber.ONE);
 				//System.out.println("PrimeNumB(2nd check no candidate)  = " + startNumber );
@@ -258,7 +313,7 @@ public class S1GP {
 		
 		//前の素数を探索するメソッド
 		private static BigNumber previousPrimeNum(BigNumber startNumber,int mode){
-			System.out.println("PreviousP");
+			//System.out.println("PreviousP");
 			while(isPrimeNum(startNumber,checkPrimeMode)==0){
 				startNumber = startNumber.subtract(BigNumber.ONE);
 				

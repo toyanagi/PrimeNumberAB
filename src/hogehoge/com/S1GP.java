@@ -23,6 +23,8 @@ public class S1GP {
 		static BigNumber PrimeNumALast;        //Aの確定値
 		static BigNumber PrimeNumBLast;        //Bの確定値
 		static BigNumber CompositeNumNLast;    //Nの確定値
+		//ファイル出力先
+		static String outfile = "output.txt";
 		
 		//打ち切り判定用
 		static boolean isClose=false;
@@ -48,8 +50,7 @@ public class S1GP {
 			// java S1GP Yの桁数 打ち切り判定時間 探索レベル 厳密解判定する最大桁数
 			CompositeNumNLength = Integer.parseInt(args[0]);
 			
-			//ファイル出力先
-			String outfile = "output_"+ CompositeNumNLength + ".txt";
+			
 			
 			//デフォルト値を設定
 			limitTIme=50*1000;  //打ち切り判定時間(デフォルト50秒)
@@ -120,25 +121,38 @@ public class S1GP {
 			
 			/// 離れた桁数→近い桁数　ex)100ケタなら5・95桁⇒・・・⇒49・51
 			//Bの桁数がminPrimeNumLength(=5ケタ）以上の間、A,Bを探索
-			while ( PrimeNumALength <=  PrimeNumBLength) {
-				long temp1 = System.currentTimeMillis();
-				searchAB();
-				judgeClose();
-				if(isClose) break;
-				long temp2 = System.currentTimeMillis();
-				System.out.println(" Run Time = " + (temp2 - temp1) + " ms " );
-				PrimeNumALength++;
-				PrimeNumBLength--;
-			}
+		    if(CompositeNumNLength < 150){
+		    	while ( PrimeNumALength <=  PrimeNumBLength) {
+					long temp1 = System.currentTimeMillis();
+					searchAB();
+					judgeClose();
+					if(isClose) break;
+					long temp2 = System.currentTimeMillis();
+					System.out.println(" Run Time = " + (temp2 - temp1) + " ms " );
+					PrimeNumALength++;
+					PrimeNumBLength--;
+				}
+				
+		    }else{
+		    	// 近い桁数→離れた桁数　ex)100ケタなら49・51桁⇒・・・⇒5・95
+				//Bの桁数がminPrimeNumLength(=5ケタ）以上の間、A,Bを探索
+		    	PrimeNumALength = (int)Math.ceil(CompositeNumNLength/2.0);
+				PrimeNumBLength = CompositeNumNLength/2;
+		    	
+				while ( PrimeNumALength >=  minPrimeNumLength) {
+					long temp1 = System.currentTimeMillis();
+					searchAB();
+					judgeClose();
+					if(isClose) break;
+					long temp2 = System.currentTimeMillis();
+					System.out.println(" Run Time = " + (temp2 - temp1) + " ms " );
+					PrimeNumALength--;
+					PrimeNumBLength++;
+				}
+		    }
 			
 		    
-		    // 近い桁数→離れた桁数　ex)100ケタなら49・51桁⇒・・・⇒5・95
-			//Bの桁数がminPrimeNumLength(=5ケタ）以上の間、A,Bを探索
-			while ( PrimeNumALength >=  minPrimeNumLength) {
-				//searchAB();
-				PrimeNumALength--;
-				PrimeNumBLength++;
-			}
+		    
 			
 			
 			
@@ -196,6 +210,56 @@ public class S1GP {
 			//今回時刻を記憶
 			previousTime = nowTime;
 			//次へ
+			
+		}
+		
+		private static void judgeExit(){
+			if(startTime <0)
+				startTime = System.currentTimeMillis();
+			nowTime = System.currentTimeMillis() - startTime;
+			
+			//打ち切り判定
+			System.out.println("---- judge ------" + nowTime);
+			
+			if(58000 < nowTime ){
+				//結果を出力
+				System.out.println("---- force stop ------" );
+				
+				PrintWriter pw = null;
+		        try {
+		            // 出力先ファイル
+		            File file = new File(outfile);
+		            
+		            pw = new PrintWriter(file);
+		            pw.println(""  + PrimeNumALast.getWordsRaw() + "," 
+		            		       + PrimeNumBLast.getWordsRaw() + ","
+		            		       + CompositeNumNLast.getWordsRaw());
+		            
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } finally {
+		            if (pw != null) {
+		                // ストリームは必ず finally で close します。
+		                pw.close();
+		            }
+		        }
+				
+				//Nを出力
+				//CompositeNumN = PrimeNumA * PrimeNumB;
+				System.out.print("Decrease Approach CompositeNumN = " + 
+				       formatNumber(CompositeNumNLast) + " = " + 
+					   formatNumber(PrimeNumALast) + " * "+
+				       formatNumber(PrimeNumBLast) + 
+				       " searchLimt = " + searchLimit + " checkPrimeMode=" + checkPrimeMode);
+				
+				//実行時間計測
+				long stopTime = System.currentTimeMillis();
+				
+				//実行時間を出力
+				System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+				System.exit(0);
+			}
+			
 			
 		}
 		
@@ -358,6 +422,7 @@ public class S1GP {
 		//素数かどうかを判断するメソッド
 		private static int isPrimeNum(BigNumber PrimeNumber,int mode){
 			System.out.println("isP : " + PrimeNumber);
+			judgeExit();
 			//mode判定　0=ためし割、1=isProbablePrime関数
 			if(mode==0){
 				//与えられた整数の平方根を探索の上限とする

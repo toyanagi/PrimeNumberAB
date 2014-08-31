@@ -673,13 +673,19 @@ public class BigNumber {
 		}
 		tempdiv = tempx/tempy;  //âºÇÃè§
 		
+		BigNumber[] tempmulti=new BigNumber[11];
+		for(int i=0;i<11;i++){
+			tempmulti[i] =  tempnum.multiply(new BigNumber(i));
+		}
+		
 		//tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
 		tempnumx = new BigNumber(tempxstr.substring(0, tempnum.length));
 		
 		//for(int i=0;i<= this.length - num.length +1 ;i++){
 		for(int i=0;i<= tempthis.length - tempnum.length  ;i++){
 			
-			tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+			//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+			tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
 			tempnumrem = tempnumx.subtract(tempnummul);
 			
 			loopWhile:
@@ -687,13 +693,15 @@ public class BigNumber {
 				
 				if(tempnumx.compareTo(tempnummul) < 0){
 					tempdiv--;
-					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+					//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
 				if(tempnumrem.compareTo(ZERO) < 0){
 					tempdiv++;
-					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+					//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
+					tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
@@ -706,6 +714,8 @@ public class BigNumber {
 			//è§ÇämíËÅiÇPåÖï™Åj
 			if(existSol)
 				buf.append(tempdiv);
+			
+				
 			
 			//if(i==this.length - num.length+1)
 			if(i==tempthis.length - tempnum.length)
@@ -721,6 +731,7 @@ public class BigNumber {
 				tempx = Integer.parseInt(tempnumx.getWordsRaw());
 			}
 			tempdiv = tempx/tempy;  //âºÇÃè§
+			
 		}
 				
 		BigNumber newnum = new BigNumber(buf.toString());

@@ -95,7 +95,7 @@ public class S1GP {
 			PrintWriter pw = null;
 	        try {
 	            // 出力先ファイル
-	            File file = new File("C:\\Users\\tomo\\output.txt");
+	            File file = new File("C:\\Users\\tomo\\output_"+ CompositeNumNLength + ".txt");
 	            
 	            pw = new PrintWriter(file);
 	            pw.println(""  + PrimeNumALast.getWordsRaw() + "," 

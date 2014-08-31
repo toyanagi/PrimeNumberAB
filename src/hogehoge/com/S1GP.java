@@ -49,7 +49,7 @@ public class S1GP {
 			CompositeNumNLength = Integer.parseInt(args[0]);
 			
 			//ファイル出力先
-			String outfile = "C:\\Users\\tomo\\output_"+ CompositeNumNLength + ".txt";
+			String outfile = "output_"+ CompositeNumNLength + ".txt";
 			
 			//デフォルト値を設定
 			limitTIme=50*1000;  //打ち切り判定時間(デフォルト50秒)
@@ -299,16 +299,23 @@ public class S1GP {
 		
 		//次の素数を探索するメソッド
 		private static BigNumber nextPrimeNum(BigNumber startNumber,int mode){
-			//System.out.println("NextP");
+			System.out.println("NextP");
 			//素数マスクのチェック
 			int maskoffset = startNumber.remainder(BigNumber.maskLenBN).words[0];
 			while(BigNumber.primeMask[maskoffset]){
-				maskoffset = (maskoffset == BigNumber.maskLen-1 ? 0 : maskoffset+1 );				
+				maskoffset = (maskoffset == BigNumber.maskLen-1 ? 0 : maskoffset+1 );	
+				startNumber = startNumber.add(BigNumber.ONE);
 			}
 			//if(!BigNumber.primeMask[maskoffset]) return 0;
 			
 			while(isPrimeNum(startNumber,checkPrimeMode)==0){
+				maskoffset = (maskoffset == BigNumber.maskLen-1 ? 0 : maskoffset+1 );
 				startNumber = startNumber.add(BigNumber.ONE);
+				while(BigNumber.primeMask[maskoffset]){
+					maskoffset = (maskoffset == BigNumber.maskLen-1 ? 0 : maskoffset+1 );
+					startNumber = startNumber.add(BigNumber.ONE);
+				}
+				//startNumber = startNumber.add(BigNumber.ONE);
 				//System.out.println("PrimeNumB(2nd check no candidate)  = " + startNumber );
 				//startNumber.add(startNumber);
 			}
@@ -320,15 +327,24 @@ public class S1GP {
 		
 		//前の素数を探索するメソッド
 		private static BigNumber previousPrimeNum(BigNumber startNumber,int mode){
-			//System.out.println("PreviousP");
+			System.out.println("PreviousP");
 			//素数マスクのチェック
 			int maskoffset = startNumber.remainder(BigNumber.maskLenBN).words[0];
+			
 			while(BigNumber.primeMask[maskoffset]){
-				maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );				
-			}
-			while(isPrimeNum(startNumber,checkPrimeMode)==0){
+				maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );
 				startNumber = startNumber.subtract(BigNumber.ONE);
-				
+			}
+			
+			while(isPrimeNum(startNumber,checkPrimeMode)==0){
+				maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );
+				startNumber = startNumber.subtract(BigNumber.ONE);
+				while(BigNumber.primeMask[maskoffset]){
+					maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );
+					startNumber = startNumber.subtract(BigNumber.ONE);
+					
+				}
+							
 				//5桁以下になったら0を返す
 				if(startNumber.compareTo(minPrimeNum) <= 0){
 						return BigNumber.ZERO;
@@ -341,7 +357,7 @@ public class S1GP {
 		
 		//素数かどうかを判断するメソッド
 		private static int isPrimeNum(BigNumber PrimeNumber,int mode){
-			//System.out.print("isP : " + PrimeNumber);
+			System.out.println("isP : " + PrimeNumber);
 			//mode判定　0=ためし割、1=isProbablePrime関数
 			if(mode==0){
 				//与えられた整数の平方根を探索の上限とする

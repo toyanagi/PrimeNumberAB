@@ -61,12 +61,12 @@ public class BigNumber {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
 		String str=   "112155155555555555555555555555555555534";
-		String str2= "11537111111111111111111111111111111111111111111111111111111111111111111111113";
+		String str2= "9993004896572399320475667033076846207654641750774457879484360947336864195063455581093234735685020485660037973418606975117417807534725692015589087638652942939942040571599880083941241131208154291213";
 		BigNumber.initPrimeList();
 		makePrimeMask();
 		BigNumber isp=new BigNumber(str2);
 		//System.out.println("check prime : " + isp);
-		//System.out.println("resule : " + isp.isProbablePrime(50));
+		//System.out.println("result : " + isp.isProbablePrime(50));
 		
 		String str3= str2;
 		
@@ -77,6 +77,17 @@ public class BigNumber {
 		
 		BigNumber num=new BigNumber(str3);
 		BigInteger numi=new BigInteger(str3);
+		
+		long startTime = System.currentTimeMillis();
+		System.out.println("BI isPrime: " + numi.isProbablePrime(50));
+		long stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
+		startTime = System.currentTimeMillis();
+		System.out.println("BN isPrime: " + num.isProbablePrime(50));
+		stopTime = System.currentTimeMillis();
+		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
+		
 		BigNumber num2=new BigNumber(str);
 		BigInteger numi2=new BigInteger(str);
 		System.out.println(num);
@@ -86,8 +97,8 @@ public class BigNumber {
 		
 		//System.out.println("2^3 mod 97:" + TWO.modPow(num3, num97));
 		//é¿çséûä‘åvë™
-		long startTime = System.currentTimeMillis();		
-		long stopTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();		
+		stopTime = System.currentTimeMillis();
 		
 		System.out.println(num +"," +num2);
 		System.out.println("BN aub: " + num.subtract(num2));
@@ -222,7 +233,7 @@ public class BigNumber {
 		primeMask =  new boolean[maskLen];
 		
 		for(int i=0;i<primeMask.length;i++){
-			primeMask[i]=true;
+			primeMask[i]=false;
 		}
 		
 		int index=0;
@@ -231,7 +242,7 @@ public class BigNumber {
 			int j=1;
 			index=j*primes[i];
 			while( index < maskLen){
-				primeMask[index]=false;
+				primeMask[index]=true;
 				j++;
 				index=j*primes[i];
 			}
@@ -614,8 +625,10 @@ public class BigNumber {
 			int resrem = this.words[0] % num.words[0];
 			BigNumber newdiv=this.copy();
 			newdiv.words[0]=resdiv;
+			newdiv.length=String.valueOf(resdiv).length();
 			BigNumber newrem=this.copy();
 			newrem.words[0]=resrem;
+			newrem.length=String.valueOf(resrem).length();
 			temp[0]=newdiv;
 			temp[1]=newrem;
 			return temp;				

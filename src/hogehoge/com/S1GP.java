@@ -300,6 +300,13 @@ public class S1GP {
 		//次の素数を探索するメソッド
 		private static BigNumber nextPrimeNum(BigNumber startNumber,int mode){
 			//System.out.println("NextP");
+			//素数マスクのチェック
+			int maskoffset = startNumber.remainder(BigNumber.maskLenBN).words[0];
+			while(BigNumber.primeMask[maskoffset]){
+				maskoffset = (maskoffset == BigNumber.maskLen-1 ? 0 : maskoffset+1 );				
+			}
+			//if(!BigNumber.primeMask[maskoffset]) return 0;
+			
 			while(isPrimeNum(startNumber,checkPrimeMode)==0){
 				startNumber = startNumber.add(BigNumber.ONE);
 				//System.out.println("PrimeNumB(2nd check no candidate)  = " + startNumber );
@@ -314,6 +321,11 @@ public class S1GP {
 		//前の素数を探索するメソッド
 		private static BigNumber previousPrimeNum(BigNumber startNumber,int mode){
 			//System.out.println("PreviousP");
+			//素数マスクのチェック
+			int maskoffset = startNumber.remainder(BigNumber.maskLenBN).words[0];
+			while(BigNumber.primeMask[maskoffset]){
+				maskoffset = (maskoffset == 0 ? BigNumber.maskLen-1 : maskoffset-1 );				
+			}
 			while(isPrimeNum(startNumber,checkPrimeMode)==0){
 				startNumber = startNumber.subtract(BigNumber.ONE);
 				

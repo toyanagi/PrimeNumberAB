@@ -12,7 +12,7 @@ public class BigNumber {
 	private long lval;
 	
 	//longŒ^‚Éû‚Ü‚ç‚È‚¢ê‡‚Íword”z—ñ‚ÉŠi”[i‚P‚Â‚Ì”z—ñ‚É‚Í‚P‚OŒ…j
-	private int words[];
+	public int words[];
 	
 	//Œ…”‚ğŠi”[
 	private int length;
@@ -42,9 +42,10 @@ public class BigNumber {
 		*/
 	
 	//‘f”ƒ}ƒXƒN‚Ìì¬
-	private static final int maskNum=7;
+	private static final int maskNum=8;
 	public static boolean[] primeMask;
 	public static int maskLen;
+	public static BigNumber maskLenBN;
 	
 	private static final int minFixNum = -100;
 	private static final int maxFixNum = 1024;
@@ -59,8 +60,8 @@ public class BigNumber {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//String str= "12345678901234567890123456789";
-		String str=   "11234";
-		String str2= "1000000000000015373";
+		String str=   "112155155555555555555555555555555555534";
+		String str2= "11537111111111111111111111111111111111111111111111111111111111111111111111113";
 		BigNumber.initPrimeList();
 		makePrimeMask();
 		BigNumber isp=new BigNumber(str2);
@@ -88,17 +89,18 @@ public class BigNumber {
 		long startTime = System.currentTimeMillis();		
 		long stopTime = System.currentTimeMillis();
 		
+		System.out.println(num +"," +num2);
 		System.out.println("BN aub: " + num.subtract(num2));
 		
 		startTime = System.currentTimeMillis();
-		for (int i=0;i<10000;i ++)
+		for (int i=0;i<1000;i ++)
 			numi.divide(numi2);
 		System.out.println("BI divide: " + numi.divide(numi2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
-		for (int i=0;i<10000;i ++)
+		for (int i=0;i<1000;i ++)
 			num.divide(num2);
 		System.out.println("BN divide: " + num.divide(num2));
 		stopTime = System.currentTimeMillis();
@@ -142,7 +144,7 @@ public class BigNumber {
 		startTime = System.currentTimeMillis();
 		for (int i=0;i<10000;i ++)
 			num.subtract(num2);
-		System.out.println("BN aub: " + num.subtract(num2));
+		System.out.println("BN sub: " + num.subtract(num2));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
@@ -215,7 +217,7 @@ public class BigNumber {
 		maskLen=1;
 		for(int i=0;i<maskNum;i++) maskLen *= primes[i];
 		System.out.println("MaskLen=" + maskLen);
-		
+		maskLenBN = new BigNumber(maskLen);
 		//ƒ}ƒXƒN‚Ì‰Šú‰»
 		primeMask =  new boolean[maskLen];
 		
@@ -332,7 +334,9 @@ public class BigNumber {
 	
 	public BigNumber copy(){
 		BigNumber newnum = new BigNumber();
-		newnum.words=this.words;
+		newnum.words=new int[this.words.length];
+		for(int i=0;i<newnum.words.length;i++)
+			newnum.words[i]=this.words[i];
 		newnum.length=this.length;		
 		newnum.isnegative = this.isnegative;
 		return newnum;
@@ -370,6 +374,29 @@ public class BigNumber {
 		}
 		
 		BigNumber newnum = new BigNumber();
+		
+		if(num.isOne()){
+			if(words[0] != intMax){
+				newnum=this.copy();
+				newnum.words[0]++;
+				return newnum;
+			}
+		}
+		
+		if(this.words.length==1 && num.words.length==1){
+			long templong = (long)(this.words[0] + num.words[0]);
+			if(templong<=(long)intMax){
+				newnum=this.copy();
+				newnum.words[0]=(int)templong;
+				return newnum;				
+			}else{
+				newnum=this.copy();
+				newnum.words[0]=(int)templong-intMax-1;
+				newnum.words[1]=1;
+				newnum.length=10;
+				return newnum;
+			}
+		}
 		
 		int thisCount = (int)Math.ceil(this.length/(double)intTypelen);
 		int numCount = (int)Math.ceil(num.length/(double)intTypelen);
@@ -441,6 +468,25 @@ public class BigNumber {
 		
 		//
 		BigNumber newnum = new BigNumber();
+		
+		if(num.isOne()){
+			if(words[0] != 0){
+				newnum=this.copy();
+				newnum.words[0]--;
+				return newnum;
+			}
+		}
+		
+		if(this.words.length==1 && num.words.length==1){
+			long templong = this.words[0] - this.words[0];
+			if(templong<=(long)intMax){
+				newnum=this.copy();
+				newnum.words[0]=this.words[0]-num.words[0];
+				return newnum;
+				
+			}
+		}
+		
 		
 		int thisCount = (int)Math.ceil(this.length/(double)intTypelen);
 		int numCount = (int)Math.ceil(num.length/(double)intTypelen);
@@ -554,7 +600,7 @@ public class BigNumber {
 		
 		BigNumber[] temp= new BigNumber[2];
 		
-		//‚Ç‚¿‚ç‚©‚ªƒ[ƒ‚Ìê‡
+		//ƒ[ƒ‚Ìê‡
 		if(this.isZero()){
 			temp[0]=ZERO;
 			temp[1]=ZERO;
@@ -563,11 +609,24 @@ public class BigNumber {
 		if(num.isZero()) //ƒ[ƒœZ‚Ìê‡‚Í—áŠO‚ğ•Ô‚·
 			throw new ArithmeticException("ZERO Division");	
 		
+		if(this.words.length==1 && num.words.length==1 && !this.isnegative && !num.isnegative){
+			int resdiv = this.words[0] / num.words[0];
+			int resrem = this.words[0] % num.words[0];
+			BigNumber newdiv=this.copy();
+			newdiv.words[0]=resdiv;
+			BigNumber newrem=this.copy();
+			newrem.words[0]=resrem;
+			temp[0]=newdiv;
+			temp[1]=newrem;
+			return temp;				
+			
+		}
+		
 		BigNumber tempthis= this.abs();
 		BigNumber tempnum= num.abs();
 		
 		//Š„‚é”‚Ì•û‚ª‘å‚«‚¢ê‡‚Íƒ[ƒ‚ğ•Ô‚·
-		if(tempthis.compareTo(tempnum.abs()) < 0 ){
+		if(tempthis.compareTo(tempnum) < 0 ){
 			temp[0]=ZERO;
 			temp[1]=new BigNumber(this.getWordsRaw());
 			temp[1].isnegative=this.isnegative;

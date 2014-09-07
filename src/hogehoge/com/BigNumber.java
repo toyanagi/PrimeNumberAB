@@ -45,16 +45,16 @@ public class BigNumber {
 	private static final int maskNum=8;
 	public static boolean[] primeMask;
 	public static int maskLen;
-	public static BigNumber maskLenBN;
+	public static BigInteger maskLenBN;
 	
 	private static final int minFixNum = -100;
 	private static final int maxFixNum = 1024;
 	private static final int numFixNum = maxFixNum-minFixNum+1;
-	private static final BigNumber[] smallFixNums = new BigNumber[numFixNum];
+	private static final BigInteger[] smallFixNums = new BigInteger[numFixNum];
 	static
 	{
 	     for (int i = numFixNum;  --i >= 0; )
-	       smallFixNums[i] = new BigNumber(i + minFixNum);
+	       smallFixNums[i] = new BigInteger(Integer.toString(i + minFixNum));
 	}
 	
 	public static void main(String[] args) {
@@ -84,7 +84,7 @@ public class BigNumber {
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
 		startTime = System.currentTimeMillis();
-		System.out.println("BN isPrime: " + num.isProbablePrime(50));
+		//System.out.println("BN isPrime: " + num.isProbablePrime(50));
 		stopTime = System.currentTimeMillis();
 		System.out.println(" Run Time = " + (stopTime - startTime) + " ms " );
 		
@@ -228,7 +228,7 @@ public class BigNumber {
 		maskLen=1;
 		for(int i=0;i<maskNum;i++) maskLen *= primes[i];
 		System.out.println("MaskLen=" + maskLen);
-		maskLenBN = new BigNumber(maskLen);
+		maskLenBN = new BigInteger(Integer.toString(maskLen));
 		//マスクの初期化
 		primeMask =  new boolean[maskLen];
 		
@@ -673,19 +673,13 @@ public class BigNumber {
 		}
 		tempdiv = tempx/tempy;  //仮の商
 		
-		BigNumber[] tempmulti=new BigNumber[11];
-		for(int i=0;i<11;i++){
-			tempmulti[i] =  tempnum.multiply(new BigNumber(i));
-		}
-		
 		//tempnumx = new BigNumber(tempxstr.substring(0, num.length-1));
 		tempnumx = new BigNumber(tempxstr.substring(0, tempnum.length));
 		
 		//for(int i=0;i<= this.length - num.length +1 ;i++){
 		for(int i=0;i<= tempthis.length - tempnum.length  ;i++){
 			
-			//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
-			tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
+			tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 			tempnumrem = tempnumx.subtract(tempnummul);
 			
 			loopWhile:
@@ -693,15 +687,13 @@ public class BigNumber {
 				
 				if(tempnumx.compareTo(tempnummul) < 0){
 					tempdiv--;
-					//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
-					tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
+					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
 				if(tempnumrem.compareTo(ZERO) < 0){
 					tempdiv++;
-					//tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
-					tempnummul = ( tempdiv <= 10 ? tempmulti[tempdiv] : tempnum.multiply(new BigNumber(Integer.toString(tempdiv))));
+					tempnummul = tempnum.multiply(new BigNumber(Integer.toString(tempdiv)));
 					tempnumrem = tempnumx.subtract(tempnummul);
 					continue loopWhile;
 				}
@@ -714,8 +706,6 @@ public class BigNumber {
 			//商を確定（１桁分）
 			if(existSol)
 				buf.append(tempdiv);
-			
-				
 			
 			//if(i==this.length - num.length+1)
 			if(i==tempthis.length - tempnum.length)
@@ -731,7 +721,6 @@ public class BigNumber {
 				tempx = Integer.parseInt(tempnumx.getWordsRaw());
 			}
 			tempdiv = tempx/tempy;  //仮の商
-			
 		}
 				
 		BigNumber newnum = new BigNumber(buf.toString());
@@ -841,24 +830,24 @@ public class BigNumber {
 		return buf.toString();
 	}
 	
-	public boolean isProbablePrime(int cert){
+	public static boolean isProbablePrime(BigInteger bint,int cert){
 		int i;
 		//素数の簡易チェック
 		for (i=0;i<primes.length;i++){
-			if(this.words.length == 1 && words[0] == primes[i])
+			if(bint.compareTo(smallFixNums[primes[i]-minFixNum])==0)
 				return true;
-			if(this.remainder(smallFixNums[primes[i]-minFixNum]).isZero())
+			if(bint.remainder(smallFixNums[primes[i]-minFixNum]).compareTo(BigInteger.ZERO)==0)
 				return false;
 		}
 		
 		//ラビン・ミラー法で判定
-		BigNumber pMinus1=this.add(MinusONE);
+		BigInteger pMinus1=bint.add(BigInteger.ONE.negate());
 		int b=pMinus1.getLowestSetBit();
 		//System.out.println( (2L << b - 1) );
-		BigNumber divtemp = new BigNumber(Long.toString(2L << b - 1));
-		BigNumber m = pMinus1.divide(divtemp);
+		BigInteger divtemp = new BigInteger(Long.toString(2L << b - 1));
+		BigInteger m = pMinus1.divide(divtemp);
 		
-		int bits=this.bitLength();
+		int bits=bint.bitLength();
 		
 		for(i=0;i<k.length;i++)
 			if(bits <= k[i])
@@ -867,20 +856,20 @@ public class BigNumber {
 		
 		if(cert>80)
 			trials *= 2;
-		BigNumber z;
+		BigInteger z;
 		
 		for(int t=0;t<trials;t++){
-			z=smallFixNums[primes[t]-minFixNum].modPow(m,this);
-			if(z.isOne() || z.compareTo(pMinus1)==0)
+			z=smallFixNums[primes[t]-minFixNum].modPow(m,bint);
+			if(z.compareTo(BigInteger.ONE)==0 || z.compareTo(pMinus1)==0)
 				continue;
 			
 			for(i=0;i<b;){
-				if(z.isOne())
+				if(z.compareTo(BigInteger.ONE)==0)
 					return false;
 				i++;
 				if( z.compareTo(pMinus1)==0)
 					break;
-				z=z.modPow(TWO,this);
+				z=z.modPow(smallFixNums[2-minFixNum],bint);
 			}
 			if(i==b && !(z.compareTo(pMinus1)==0))
 				return false;
